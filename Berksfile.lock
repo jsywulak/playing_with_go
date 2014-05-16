@@ -1,0 +1,27 @@
+{
+  "sources": {
+    "go-cookbook": {
+      "locked_version": "0.0.10",
+      "git": "https://github.com/ThoughtWorksInc/go-cookbook.git",
+      "ref": "e6db1b068c2cd2c442346daa7f41743f8b1ce5ed"
+    },
+    "apt": {
+      "locked_version": "2.3.0"
+    },
+    "java": {
+      "locked_version": "1.15.4"
+    },
+    "windows": {
+      "locked_version": "1.11.0"
+    },
+    "chef_handler": {
+      "locked_version": "1.1.4"
+    },
+    "aws": {
+      "locked_version": "1.0.0"
+    },
+    "yum": {
+      "locked_version": "3.2.0"
+    }
+  }
+}
