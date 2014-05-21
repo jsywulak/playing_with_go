@@ -1,0 +1,184 @@
+{
+    "Description": "Messing around the go. I just wanna be able to spin up a go server on demand.",
+    "Resources": {
+        "myStack": {
+            "Type": "AWS::OpsWorks::Stack",
+            "Properties": {
+                "Name": {
+                    "Ref": "AWS::StackName"
+                },
+                "DefaultAvailabilityZone": "us-west-2a",
+                "ServiceRoleArn": {
+                    "Fn::GetAtt": [
+                        "OpsWorksServiceRole",
+                        "Arn"
+                    ]
+                },
+                "DefaultInstanceProfileArn": {
+                    "Fn::GetAtt": [
+                        "OpsWorksInstanceProfile",
+                        "Arn"
+                    ]
+                },
+                "CustomCookbooksSource": {
+                    "Type": "git",
+                    "Url": "https://github.com/jsywulak/playing_with_go.git"
+                },
+                "ConfigurationManager": {
+                    "Name": "Chef",
+                    "Version": "11.10"
+                },
+                "UseCustomCookbooks": "true",
+                "CustomJson": {
+                    "go": {
+                        "server": { "Ref" : "GoEIP"}
+                    },
+                    "rvm": {
+                        "user_installs": [
+                            {
+                                "user": "go"
+                            }
+                        ]
+                    }
+                },
+                "DefaultOs": "Ubuntu 12.04 LTS",
+                "DefaultSshKeyName": "jonny-labs-west2"
+            }
+        },
+        "myLayer": {
+            "Type": "AWS::OpsWorks::Layer",
+            "Properties": {
+                "StackId": {
+                    "Ref": "myStack"
+                },
+                "Name": "go server",
+                "Type": "custom",
+                "Shortname": "go",
+                "EnableAutoHealing": "true",
+                "AutoAssignElasticIps": "false",
+                "AutoAssignPublicIps": "true",
+                "CustomSecurityGroupIds" :  [ { " Fn::GetAtt" : ["GoSecurityGroup", "GroupId"] } ],
+                "Packages": [
+                    "nodejs",
+                    "sqlite3",
+                    "mlocate"
+                ],
+                "CustomRecipes": {
+                    "Setup": [
+                        "go::default"
+                    ]
+                }
+            }
+        },
+        "myInstance1": {
+            "Type": "AWS::OpsWorks::Instance",
+            "Properties": {
+                "StackId": {
+                    "Ref": "myStack"
+                },
+                "LayerIds": [
+                    {
+                        "Ref": "myLayer"
+                    }
+                ],
+                "InstallUpdatesOnBoot": true,
+                "Os": "Ubuntu 12.04 LTS",
+                "InstanceType": "m3.medium",
+                "RootDeviceType": "ebs",
+                "Architecture": "x86_64"
+            }
+        },
+        "OpsWorksServiceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "opsworks.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "opsworks-service",
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "*",
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "OpsWorksInstanceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "opsworks-service",
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": "*",
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "OpsWorksInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "OpsWorksInstanceRole"
+                    }
+                ]
+            }
+        },
+        "GoEIP" : {
+           "Type" : "AWS::EC2::EIP"
+        },
+        "GoSecurityGroup" : {
+          "Type" : "AWS::EC2::SecurityGroup",
+          "Properties" : {
+            "GroupDescription" : "Enable access to the Go server",
+            "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "8153",  "ToPort" : "8153",  "CidrIp" : "0.0.0.0/0"} ]
+          }
+        }
+
+    }
+}
