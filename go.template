@@ -57,7 +57,7 @@
                 "EnableAutoHealing": "true",
                 "AutoAssignElasticIps": "false",
                 "AutoAssignPublicIps": "true",
-                "CustomSecurityGroupIds" :  [ { " Fn::GetAtt" : ["GoSecurityGroup", "GroupId"] } ],
+                "CustomSecurityGroupIds" : [ { "Fn::GetAtt" : [ "GoSecurityGroup", "GroupId" ] } ],
                 "Packages": [
                     "nodejs",
                     "sqlite3",
