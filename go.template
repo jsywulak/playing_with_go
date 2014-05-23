@@ -30,9 +30,6 @@
                 },
                 "UseCustomCookbooks": "true",
                 "CustomJson": {
-                    "go": {
-                        "server": { "Ref" : "GoEIP"}
-                    },
                     "rvm": {
                         "user_installs": [
                             {
