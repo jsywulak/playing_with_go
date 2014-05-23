@@ -29,7 +29,18 @@
                     "Version": "11.10"
                 },
                 "UseCustomCookbooks": "true",
-                "CustomJson": {},
+                "CustomJson": {
+                    "go": {
+                        "server": { "Ref" : "GoEIP"}
+                    },
+                    "rvm": {
+                        "user_installs": [
+                            {
+                                "user": "go"
+                            }
+                        ]
+                    }
+                },
                 "DefaultOs": "Ubuntu 12.04 LTS",
                 "DefaultSshKeyName": "jonny-labs-west2"
             }
@@ -48,11 +59,11 @@
                 "AutoAssignPublicIps": "true",
                 "CustomSecurityGroupIds" : [ { "Fn::GetAtt" : [ "GoSecurityGroup", "GroupId" ] } ],
                 "Packages": [
-                    "nodejs", "sqlite3", "mlocate", "ruby-rvm"
-                ],
+                    "nodejs", "sqlite3", "mlocate"
+                ], 
                 "CustomRecipes": {
                     "Setup": [
-                        "go::default"
+                        "rvm::user_install", "go::default"
                     ]
                 }
             }
